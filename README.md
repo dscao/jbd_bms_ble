@@ -1,7 +1,7 @@
 
 # Home Assistant JBD BMS Bluetooth Integration
 
-这是一个为 JBD (小象/中颖/蚂蚁) 保护板开发的 Home Assistant 原生集成。它通过蓝牙直接连接（支持 ESPHome 蓝牙代理），无需额外的串口转 WiFi 模块。
+这是一个为 JBD (小象电动) 保护板开发的 Home Assistant 原生集成。它通过蓝牙直接连接（支持 ESPHome 蓝牙代理），无需额外的串口转 WiFi 模块。
 
 ## 🌟 核心特性
 
