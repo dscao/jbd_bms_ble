@@ -1,0 +1,13 @@
+{
+  "domain": "jbd_bms_ble",
+  "name": "JBD Smart BMS",
+  "config_flow": true,
+  "dependencies": [
+    "bluetooth"
+  ],
+  "requirements": [
+    "bleak-retry-connector>=2.9.0"
+  ],
+  "iot_class": "local_polling",
+  "version": "1.0.0"
+}
