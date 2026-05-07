@@ -1,0 +1,31 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Add JBD Smart BMS",
+        "description": "Enter the Bluetooth MAC address of your JBD BMS.",
+        "data": {
+          "address": "Bluetooth MAC Address"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect, please check device range.",
+      "unknown": "Unknown error occurred."
+    },
+    "abort": {
+      "already_configured": "Device is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "JBD BMS Options",
+        "data": {
+          "update_interval": "Update Interval (seconds)",
+          "disconnect_delay": "Disconnect Delay (seconds)"
+        }
+      }
+    }
+  }
+}

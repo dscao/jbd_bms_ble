@@ -1,0 +1,37 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "添加 JBD 蓝牙保护板",
+        "description": "请输入 JBD 保护板的蓝牙 MAC 地址。",
+        "data": {
+          "address": "蓝牙 MAC 地址 (如 AA:BB:CC:11:22:33)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "连接失败，请检查设备是否在范围内",
+      "unknown": "发生未知错误"
+    },
+    "abort": {
+      "already_configured": "该设备已经配置过了"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "调整 JBD BMS 选项",
+        "data": {
+          "update_interval": "数据刷新间隔 (秒)",
+          "disconnect_delay": "读取后断开延迟 (秒，建议 5-10)"
+        }
+      }
+    }
+  },
+  "state": {
+    "jbd_bms__cell_balancing": {
+      "on": "均衡中",
+      "off": "待机"
+    }
+  }
+}
