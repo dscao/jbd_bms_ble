@@ -1,5 +1,6 @@
 import logging
 import struct
+import asyncio
 from homeassistant.components.switch import SwitchEntity, SwitchEntityDescription
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from .const import DOMAIN, REG_MOS_CTRL
@@ -43,28 +44,26 @@ class JbdMosSwitch(CoordinatorEntity, SwitchEntity):
         return self.coordinator.data.get(self.entity_description.key)
 
     async def _update_mos_state(self, turn_on: bool):
-        """核心计算逻辑"""
-        # 读取当前两个开关的期望状态
+        # 读取当前状态
         curr_charge = self.coordinator.data.get("charge_mos", True)
         curr_discharge = self.coordinator.data.get("discharge_mos", True)
 
-        # 赋予新状态
+        # 计算新掩码
         if self.entity_description.key == "charge_mos":
             curr_charge = turn_on
         else:
             curr_discharge = turn_on
 
-        # JBD MOS Override 计算
+        # JBD 逻辑：1 代表关闭，0 代表开启
         override_val = 0
-        if not curr_charge:   override_val |= 0x01
-        if not curr_discharge: override_val |= 0x02
+        if not curr_charge:    override_val |= 0x01 # Bit 0
+        if not curr_discharge: override_val |= 0x02 # Bit 1
 
-        # 发送 2 字节的数据 (大端序)
         payload = struct.pack(">H", override_val)
+        # 直接发送，BleManager 会自动处理（0xE1 无需解锁，速度最快）
         success = await self._manager.send_command(REG_MOS_CTRL, payload)
 
         if success:
-            # 乐观更新本地 UI
             self.coordinator.data[self.entity_description.key] = turn_on
             self.async_write_ha_state()
 

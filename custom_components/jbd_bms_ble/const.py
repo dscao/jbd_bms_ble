@@ -10,13 +10,12 @@ CONF_DISCONNECT_DELAY = "disconnect_delay"
 DEFAULT_UPDATE_INTERVAL = 30
 DEFAULT_DISCONNECT_DELAY = 10
 
-# 追加了 BINARY_SENSOR 平台
 PLATFORMS = [
     Platform.SENSOR, 
     Platform.BINARY_SENSOR, 
     Platform.SWITCH, 
     Platform.BUTTON, 
-    Platform.SELECT
+    # Platform.SELECT
 ]
 
 JBD_SERVICE_UUID = "0000ff00-0000-1000-8000-00805f9b34fb"

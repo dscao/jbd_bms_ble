@@ -18,12 +18,60 @@ class JbdProtocol:
         return bytes(cmd)
 
     @staticmethod
-    def build_write_command(register: int, data: bytes) -> bytes:
-        cmd = bytearray([0xDD, 0x5A, register, len(data)])
-        cmd.extend(data)
-        cmd.extend(JbdProtocol.calculate_checksum(cmd[2:]))
-        cmd.append(0x77)
-        return bytes(cmd)
+    def build_write_command(register: int, value) -> bytes:
+        # 数据转换处理
+        if isinstance(value, int):
+            data = value.to_bytes(2, byteorder='big')
+        else:
+            data = value
+            
+        length = len(data)
+        
+        # 严格计算校验和：0x10000 - (寄存器 + 长度 + 数据字节和)
+        # 注意：不要把 0x5A 或 0xDD 算进去
+        payload_sum = register + length + sum(data)
+        checksum = (0x10000 - payload_sum) & 0xFFFF
+        
+        frame = bytearray([0xDD, 0x5A, register, length])
+        frame.extend(data)
+        frame.extend(checksum.to_bytes(2, byteorder='big'))
+        frame.append(0x77)
+        
+        return bytes(frame)
+        
+    
+
+    @staticmethod
+    def parse_balance_config(data: bytes) -> dict:
+        """
+        解析均衡配置寄存器 (现改为 0x52)
+        通常返回 2 字节数据，大端序。
+        """
+        if len(data) < 2:
+            return {}
+        
+        # 提取状态位 (通常在低字节)
+        # 0x00: 关闭, 0x01: 静态均衡, 0x03: 充电均衡
+        raw_val = data[1] & 0x03
+        
+        _LOGGER.debug("从寄存器 0x52 读取到均衡原始值: 0x%02X, 解析结果: %d", data[1], raw_val)
+        return {"balance_mode_raw": raw_val}
+
+    @staticmethod
+    def build_eeprom_unlock_command() -> bytes:
+        """
+        构建 EEPROM 解锁指令
+        向寄存器 0x00 写入 0x5678
+        """
+        return JbdProtocol.build_write_command(0x00, 0x5678)
+
+    @staticmethod
+    def build_eeprom_lock_command() -> bytes:
+        """
+        构建 EEPROM 锁定指令
+        向寄存器 0x00 写入 0x0000
+        """
+        return JbdProtocol.build_write_command(0x00, 0x0000)
 
     @staticmethod
     def is_complete_packet(buffer: bytearray) -> bool:
@@ -202,14 +250,14 @@ class JbdProtocol:
         except Exception as e:
             _LOGGER.error("解析 EEPROM 0x52 失败: %s", e)
             return {}
-            
+
     @staticmethod
-    def parse_hardware_version(payload: bytes) -> dict:
-        """解析 0x05 寄存器的硬件版本 (ASCII 字符串)"""
+    def parse_device_name(data: bytes) -> dict:
+        """解析型号"""
         try:
-            # 将字节码解码为 ASCII，忽略无法识别的字符，并剔除前后的空白和 NUL(\x00) 字符
-            version_str = payload.decode("ascii", errors="ignore").strip('\x00').strip()
-            return {"hardware_version": version_str}
-        except Exception as e:
-            _LOGGER.error("解析硬件版本失败: %s", e)
-            return {}
+            name = data.decode('ascii', errors='ignore').strip('\x00').strip()
+            return {
+                "hardware_version": name
+            }
+        except:
+            return {"hardware_version": "Unknown"}
